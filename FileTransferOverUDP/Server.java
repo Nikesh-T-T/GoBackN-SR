@@ -13,7 +13,7 @@ public class Server {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             socket = new DatagramSocket(9876);
-            byte[] incomingData = new byte[1024 * 1024 * 1024];
+            byte[] incomingData = new byte[1024 * 1024];
             while (true) {
 
                 DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
