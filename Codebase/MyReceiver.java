@@ -8,13 +8,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 public class MyReceiver {
 
 	public static final double LOST_PACK_PROBABILITY = 0.1;
 
 	public static void main(String[] args) {
-
+		long startTime = System.currentTimeMillis();
 		DatagramSocket socket = null;
 		int portNumber = 0;
 		if (args.length == 1) {
@@ -40,7 +41,7 @@ public class MyReceiver {
 			InitiateTransfer initiateTransfer = (InitiateTransfer) isInitial.readObject();
 			System.out.println(
 					"Initial configuration Recieved = " + initiateTransfer.toString() + "\n");
-
+			startTime = System.currentTimeMillis();
 			int type = initiateTransfer.getType();
 			InetAddress IPAddress = initialPacket.getAddress();
 			int port = initialPacket.getPort();
@@ -66,6 +67,9 @@ public class MyReceiver {
 
 			e.printStackTrace();
 		}
+		long endTime   = System.currentTimeMillis();
+        	long totalTime = endTime - startTime;
+        	System.out.println("Total time in seconds : "+TimeUnit.MILLISECONDS.toSeconds(totalTime));
 
 	}
 
@@ -123,7 +127,7 @@ public class MyReceiver {
 				if (value < waitingFor) {
 					waitingFor = value;
 					int length = received.size();
-					System.out.println("----------Packet " + (waitingFor) + " lost in the Transmission\n");
+					System.out.println("Packet " + (waitingFor) + " lost in the Transmission\n");
 					//System.out.println("!!!!!!!!!!!!!!!!!!!!Packet Lost!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
 					received.remove(length - 1);
 

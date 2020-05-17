@@ -15,11 +15,13 @@ import java.util.Random;
 
 public class MySender {
 
-	public static int TIMER = 3000;
+	public static int TIMER = 50;
 
 	public static final double LOST_ACK_PROBABILITY = 0.05;
 
 	public static final double BIT_ERROR_PROBABILITY = 0.1;
+
+	public static double totalResent = 0;
 
 	public static void main(String[] args) {
 
@@ -90,6 +92,8 @@ public class MySender {
 
 			e.printStackTrace();
 		}
+		
+		System.out.println("Miss ratio - " + (totalResent/(totalResent+numPackets)));
 
 	}
 
@@ -135,11 +139,12 @@ public class MySender {
 			ByteArrayInputStream inReturn = new ByteArrayInputStream(dataImp);
 			ObjectInputStream isReturn = new ObjectInputStream(inReturn);
 			InitiateTransfer initiateTransfer2 = (InitiateTransfer) isReturn.readObject();
-
+			//Type 100 - initial transfer, Type 0 - GBN, Type 1 - SR
 			if (initiateTransfer2.getType() == 100) {
 
 				while (true) {
-
+					//Keep on sending the packets until no.of items which are sent and acknowledgment notreceived 
+					//is less than window size or last sent paket is equal to maximum packet size
 					while (lastSent - waitingForAck < windowSize && lastSent < numPackets) {
 						if (lastSent == 0 && waitingForAck == 0) {
 							System.out.println("-Timer Started for Packet:  " + 0 + "\n");
@@ -170,7 +175,7 @@ public class MySender {
 						sent.add(segmentData);
 						Socket.send(sendPacket);
 						lastSent++;
-						Thread.sleep(2500);
+						Thread.sleep(50);
 
 					}
 					DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
@@ -190,8 +195,7 @@ public class MySender {
 										"Timer Started for Packet:  " + ackData.getAckNo() + "\n");
 							}
 						} else {
-							System.out.println("Acknowledgment Lost for :" + (ackData.getAckNo() - 1)
-									+ "\n");
+							System.out.println("Acknowledgment Lost for :" + (ackData.getAckNo() - 1) + "\n");
 						}
 
 						if (ackData.getAckNo() == numPackets) {
@@ -223,7 +227,8 @@ public class MySender {
 							System.out.println(
 									"Re Sending Packet :" + segmentData.getSeqNum() + "\n");
 							Socket.send(sendPacket);
-							Thread.sleep(3000);
+							totalResent++;
+							Thread.sleep(50);
 
 						}
 
@@ -262,11 +267,12 @@ public class MySender {
 			ByteArrayInputStream inReturn = new ByteArrayInputStream(dataImp);
 			ObjectInputStream isReturn = new ObjectInputStream(inReturn);
 			InitiateTransfer initiateTransfer2 = (InitiateTransfer) isReturn.readObject();
-
+			//Type 100 - initial transfer, Type 0 - GBN, Type 1 - SR
 			if (initiateTransfer2.getType() == 100) {
 
 				while (true) {
-
+					//Keep on sending the packets until no.of items which are sent and acknowledgment notreceived 
+					//is less than window size or last sent packet is equal to maximum packet size
 					while (lastSent - waitingForAck < windowSize && lastSent < numPackets) {
 						
 						/*if (lastSent == 0 && waitingForAck == 0) {
@@ -309,7 +315,7 @@ public class MySender {
 						sent.add(segmentData);
 						Socket.send(sendPacket);
 						lastSent++;
-						Thread.sleep(2500);
+						Thread.sleep(50);
 
 					}
 					DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
@@ -346,8 +352,7 @@ public class MySender {
 
 							
 						} else {
-							System.out.println("Acknowledgment Lost for :" + (ackData.getAckNo() - 1)
-									+ "\n");
+							System.out.println("Acknowledgment Lost for :" + (ackData.getAckNo() - 1)+ "\n");
 						}
 
 						if (waitingForAck == numPackets && unOrdered.size() == 0) {
@@ -381,7 +386,8 @@ public class MySender {
 								System.out.println(
 										"Re Sending Packet :" + segmentData.getSeqNum() + "\n");
 								Socket.send(sendPacket);
-								Thread.sleep(2000);
+								totalResent++;
+								Thread.sleep(50);
 
 							}
 
